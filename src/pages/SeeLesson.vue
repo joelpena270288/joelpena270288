@@ -101,12 +101,14 @@
                      <div class="q-pa-md" style="min-width: 450px">
                   {{video.nombre}}
                   </div>               
-          
+          <template>
+            
           <q-video
       :ratio="2/1"
       :src="video.link"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         />
-        
+        </template>
                   
                   </div> 
                   

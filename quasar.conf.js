@@ -79,10 +79,21 @@ module.exports = function (/* ctx */) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
-      port: 8080,
+     
+      port: 80,
       open: true,
-      
+      https: false,
+      allowedHosts: ['https://www.youtube.com'],
+      before (app) {
+        const cors = require('cors')
+        app.options('*',cors())
+        app.use(cors())
+      },
+      headers: {
+        // 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        // 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Origin': '*',
+    },
       proxy: {
         '/api': {
           target: 'http://localhost:4000/api',
