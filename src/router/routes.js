@@ -115,6 +115,13 @@ const routes = [
     children: [
       { path: '', component: () => import('src/pages/Administracion.vue') }
     ]
+  },
+  {
+    path: '/RealizarExamenModulo/:idmodulo',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('src/pages/RealizarExamenModulo.vue') }
+    ]
   }
   
 ]

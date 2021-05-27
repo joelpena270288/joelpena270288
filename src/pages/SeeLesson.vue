@@ -23,16 +23,50 @@
           <q-card-section class="border-radius-inherit flex flex-lefth bg-grey-1">
              <div class="q-pa-md" style="min-width: 350px">
              <div v-if="cursoprogreso.modulospasados.length > 0">
+                
+              <div v-for="modpasados in cursoprogreso.modulospasados" v-bind:key="modpasados.id">
+                 <q-item-label >{{modpasados.modulo.nombre}}</q-item-label>
 
+                 <div v-if="modpasados.modulo.clases.length > 0">
+                  <div v-for="clasep in modpasados.modulo.clases" v-bind:key="clasep.id">
+                    <q-item>
+
+                       <q-item-section side top>
+                       <q-btn size="12px" flat dense round icon="check_circle" color="green" @click="PrepararClase(clasep)"/>
+                      </q-item-section>
+                        <q-item-section>
+                     <q-item-label >{{clasep.nombre}}</q-item-label>
+                    </q-item-section>
+                      </q-item>
+                   </div>
+                   </div>
+
+                </div>
+               
 
                </div>
+
+               
+              <q-item-label >{{cursoprogreso.moduloActual.modulo.nombre}}</q-item-label>
                
 
                <div v-if="cursoprogreso.moduloActual.clasespasadas.length > 0">
+                 <div v-for="clas in cursoprogreso.moduloActual.clasespasadas" v-bind:key="clas.id">
+                    <q-item>
 
+                       <q-item-section side top>
+                       <q-btn size="12px" flat dense round icon="check_circle" color="green" @click="PrepararClase(clas.clase)"/>
+                      </q-item-section>
+                        <q-item-section>
+               <q-item-label >{{clas.clase.nombre}}</q-item-label>
+                 </q-item-section>
+                      </q-item>
+                   </div>
 
                </div>
+                 <div v-if="cursoprogreso.moduloActual.ultimaclase.clase"> 
                 <q-item>
+                
                    <q-item-section side top>
                        <q-btn size="12px" flat dense round icon="check_circle" color="blue" @click="PrepararClase(cursoprogreso.moduloActual.ultimaclase.clase)"/>
                       </q-item-section>
@@ -40,9 +74,10 @@
                <q-item-label >{{cursoprogreso.moduloActual.ultimaclase.clase.nombre}}</q-item-label>
                  </q-item-section>
                </q-item>
+                 </div>
                 <q-item>
                    <q-item-section side top>
-                       <q-btn size="12px" flat dense round icon="check_circle" color="purple" @click="RealizarExamen()"/>
+                       <q-btn size="12px" flat dense round icon="check_circle" color="purple" @click="RealizarExamen(cursoprogreso.moduloActual.modulo)"/>
                       </q-item-section>
                         <q-item-section>
                <q-item-label >Module Examen</q-item-label>
@@ -102,7 +137,7 @@
                   {{video.nombre}}
                   </div>               
           <template>
-            
+
           <q-video
       :ratio="2/1"
       :src="video.link"
@@ -221,7 +256,7 @@ export default {
    data () {
   return {
       slide: 1,
-      optionspreguntas: [],
+        optionspreguntas: [],
         grouppreguntas: [],
         cantidadPreguntasHtml: 0,
          evaluacionclase: 0,
@@ -246,6 +281,8 @@ export default {
    methods:{
      
    PrepararClase(clase){
+      this.optionspreguntas= [];
+        this.grouppreguntas= [];
    this.claseseleccionada = clase;
    for(let i = 0; i < clase.actividades.length; i++ ){
      for(let j = 0; j< clase.actividades[i].preguntas_html.length; j++){
@@ -257,7 +294,16 @@ export default {
      
    
    },
-  RealizarExamen(){},
+  RealizarExamen(modulo){
+
+    this.$router.push({
+
+                  path: "/RealizarExamenModulo/"+modulo.id,
+                 params:{
+                 idmodulo: modulo.id,
+                }
+                })
+  },
    CalcularEstado(){
   
     return 100;
@@ -280,7 +326,7 @@ export default {
          }
     }
       await api.post('/cursosprogreso/enviarNota',
-     { id: this.cursoprogreso.id, preguntas: respuesta,idclase: this.idclase
+     { id: this.cursoprogreso.id, preguntas: respuesta, idclase: this.claseseleccionada.id
    
    },
      {
