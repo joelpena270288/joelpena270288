@@ -2,7 +2,7 @@
     <div>
         <div class="card text-white bg-info mb-2" v-if="seconds">
             <div class="card-body">
-                <h2>{{ countdown }}</h2>
+                <h6>{{ countdown }}</h6>
             </div>
         </div>
     </div>
@@ -12,6 +12,7 @@
     import * as moment from 'moment';
     export default {
         name: 'CountDown',
+       
         props: {
             seconds: {
                 type: Number,
@@ -23,12 +24,14 @@
                 countdown: null,
                 expires_in: null,
                 interval: null,
+                
             }
         },
         mounted () {
             this.countdown = moment.utc(this.seconds).format('HH:mm:ss');
             this.expires_in = this.seconds;
             this._setInterval();
+           
         },
         destroyed () {
             clearInterval(this.interval);
@@ -44,6 +47,7 @@
                     }
                 }, 1000);
             },
-        }
+        },
+    
     }
 </script>

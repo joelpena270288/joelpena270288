@@ -1,11 +1,12 @@
 <template>
- <q-page-container>   
- <q-page-sticky   position="bottom-right" :offset="[18, 18]">
-           <CountDown :seconds="tiempoexamen" />
+  <q-page-container>   
+      <q-page-sticky   position="bottom-right" :offset="[18, 18]">
+            <CountDown :seconds="tiempoexamen" />
           </q-page-sticky>
- 
   <div class="q-pa-md">
-  
+   
+   
+    
     <q-carousel    
       v-model="slide"
       transition-prev="slide-right"
@@ -20,12 +21,13 @@
        <q-carousel-slide  v-for="pregunta in examen.preguntasModulo" v-bind:key="pregunta.id" :name="pregunta.id" class="column no-wrap flex-center">
       
         <div class="q-mt-md text-center">
-         
+          
           <div v-if="pregunta.preguntachecked">
              <q-item>
               <q-item-section>
               <q-item-label>
             Question #: {{pregunta.numeropregunta}}
+            {{contador}}
            </q-item-label>           
               </q-item-section>
                 </q-item>
@@ -40,14 +42,18 @@
     <q-item-section>      
   <div class="q-pa-md">
     <q-option-group 
-      :options="pregunta.preguntachecked.optionschecked"
+      :options="optionschecked"
       type="radio"
-      v-model="pregunta.preguntachecked.respuesta"
+      v-model="groupchecked"
     />
   </div>
   </q-item-section>
   </q-item>
-
+   <q-item>
+<q-item-section>
+ <q-btn color="primary" label="Save" @click="AnadirPreguntaChecked()" />
+</q-item-section>
+  </q-item>
  </div>
 
           <div v-if="pregunta.preguntamultiselected">
@@ -71,10 +77,10 @@
                 <q-item-section>
   <div class="q-pa-md">
     <q-option-group
-      :options="pregunta.preguntamultiselected.optionsmultipreguntas"
+      :options="optionsmultipreguntas"
       label="Notifications"
       type="checkbox"
-      v-model="respuesta_multiselected"
+      v-model="groupmultipreguntas"
     />
 
   </div>
@@ -83,7 +89,11 @@
 
   </q-item>
 
-
+ <q-item>
+<q-item-section>
+ <q-btn color="primary" label="Save" @click="AnadirPreguntaMulti()"/>
+</q-item-section>
+  </q-item>
   </div>
 
  <div v-if="pregunta.preguntaVoF">
@@ -100,7 +110,7 @@
                <q-item-section>
               <q-item-label>
                
-           Check True or False 
+           Marque T o F segun corresponda
             
            </q-item-label>           
               </q-item-section>
@@ -110,35 +120,30 @@
              
              
    
-                <div v-for="tof in pregunta.preguntaVoF.preguntasValue" v-bind:key="tof.id" > 
+ 
            <q-item>
+               <q-item-section>
+                   <div v-for="tof in pregunta.preguntaVoF.preguntasValue" v-bind:key="tof.id" > 
               
-
-                  
-            <div class="row">
-              <div class="column" >
-                 
-           <q-select filled  v-model="tof.respuesta_ToF" :dense="dense" :options-dense="denseOpts" :options="stringOptions" style="max-height: 30px; max-width: 50px" >
-            </q-select>
-             
-             </div>
-            <q-separator spaced inset/>
-
-              <div class="column">
-                 <q-item-section>
-          <q-item-label >               
+           <q-select filled bottom-slots v-model="tof.respuesta1" :dense="dense" :options-dense="denseOpts" :options="stringOptions" >
+       <template v-slot:after>
+          <q-item-label>               
           {{tof.pregunta}}            
            </q-item-label> 
-             </q-item-section> 
-        </div>
+        </template>
+         </q-select>
+         
+             
         
-         </div>
-        
-           
-      
-              </q-item>
-             <q-separator spaced inset/>
             </div>
+       </q-item-section>
+              </q-item>
+             
+             <q-item>
+<q-item-section>
+ <q-btn color="primary" label="Save" @click="Prueba(pregunta.preguntaVoF.preguntasValue)"/>
+</q-item-section>
+  </q-item>
             </div>
         
          
@@ -159,10 +164,7 @@
     </div>
     
   </div>
-   <div class="row justify-center">
- <q-btn color="primary" label="End Questionary" @click="Prueba()"/>
- </div>
- </q-page-container>   
+</q-page-container>  
 </template>
 
 <script>
@@ -179,9 +181,10 @@ export default {
       
   return {  
        slide: "",
-       
-       
-        respuesta_multiselected: [],
+        groupchecked: null,
+        optionschecked: [],
+         optionsmultipreguntas: [],
+         groupmultipreguntas: [],
          tiempoexamen: 50,
          modelToF: [],
          stringOptions: ["T","F"],
@@ -190,8 +193,7 @@ export default {
         
       examen: {},
       optionsValues: [],
-      respuesta: {},
-      posicion: -1,
+     contador: CountDown.props.secunds,
    
       
     }
@@ -209,9 +211,10 @@ export default {
 
      
  async CargarDatos(){
-   
+     this.groupchecked = null;
      this.optionschecked = [];
-   
+     this.optionsmultipreguntas = [];
+       this.groupmultipreguntas = [];
          await  api.get('/examenModulo/getbyIdModulo/'+this.$route.params.idmodulo,{
   headers: {
     'Authorization': `Bearer ${authenticate.getUserLogged()}`
@@ -223,9 +226,6 @@ export default {
       }));
       
        for(let i = 0; i < this.examen.preguntasModulo.length; i++ ){
-         if( this.examen.preguntasModulo[i].preguntamultiselected){
-           this.examen.preguntasModulo[i].preguntamultiselected.respuesta_multiselected = [];
-         }
          this.optionsValues.push({ label: i+1, value: this.examen.preguntasModulo[i].id } );   
      }
      this.slide = this.examen.preguntasModulo[0].id;
@@ -235,55 +235,41 @@ export default {
         }
        }
        if(this.examen.preguntasModulo[0].preguntamultiselected){
-        
        for(let j = 0; j< this.examen.preguntasModulo[0].preguntamultiselected.preguntasvaluesVoF.length; j++ ){
             this.optionsmultipreguntas.push({ label: this.examen.preguntasModulo[0].preguntamultiselected.preguntasvaluesVoF[j].pregunta , value:this.examen.preguntasModulo[0].preguntamultiselected.preguntasvaluesVoF[j].id });
             
         }
       }
       
-    //  { label: 1, value: 'style' },
-   // this.
+    
   },
-  Mostrar(slide){ 
-    
-    
-    if(this.posicion > 0){
-     this.examen.preguntasModulo[this.posicion].preguntamultiselected.respuesta_multiselected = this.respuesta_multiselected;
-    }  
-    
-     this.optionschecked = [];    
+  Mostrar(slide){
+    this.groupchecked = null;
+     this.optionschecked = [];
+     this.optionsmultipreguntas = [];
+       this.groupmultipreguntas = [];
     for(let i = 0; i < this.examen.preguntasModulo.length; i++ ){
       if(this.examen.preguntasModulo[i].id===slide){
       if(this.examen.preguntasModulo[i].preguntachecked){
-        this.examen.preguntasModulo[i].preguntachecked.optionschecked = [];
         for(let j = 0; j< this.examen.preguntasModulo[i].preguntachecked.preguntas.length; j++ ){
-           this.examen.preguntasModulo[i].preguntachecked.optionschecked.push({ label: this.examen.preguntasModulo[i].preguntachecked.preguntas[j].pregunta , value: this.examen.preguntasModulo[i].preguntachecked.preguntas[j].id });
+            this.optionschecked.push({ label: this.examen.preguntasModulo[i].preguntachecked.preguntas[j].pregunta , value: this.examen.preguntasModulo[i].preguntachecked.preguntas[j].id });
             
         }
         
       }
-      if(this.examen.preguntasModulo[i].preguntamultiselected){   
-           this.posicion = i;
-         this.examen.preguntasModulo[i].preguntamultiselected.optionsmultipreguntas = [];
-       
-         this.respuesta_multiselected = this.examen.preguntasModulo[i].preguntamultiselected.respuesta_multiselected;
-        
-
+      if(this.examen.preguntasModulo[i].preguntamultiselected){
        for(let j = 0; j< this.examen.preguntasModulo[i].preguntamultiselected.preguntasvaluesVoF.length; j++ ){
-            this.examen.preguntasModulo[i].preguntamultiselected.optionsmultipreguntas.push({ label: this.examen.preguntasModulo[i].preguntamultiselected.preguntasvaluesVoF[j].pregunta , value:this.examen.preguntasModulo[i].preguntamultiselected.preguntasvaluesVoF[j].id });
-           
+            this.optionsmultipreguntas.push({ label: this.examen.preguntasModulo[i].preguntamultiselected.preguntasvaluesVoF[j].pregunta , value:this.examen.preguntasModulo[i].preguntamultiselected.preguntasvaluesVoF[j].id });
+            
         }
-      
       }
     }
   
   }
-  
  
   },
-  Prueba(){
- console.log(this.examen)
+  Prueba(prueba){
+ console.log(prueba)
   },
   AnadirPreguntaChecked(){
 

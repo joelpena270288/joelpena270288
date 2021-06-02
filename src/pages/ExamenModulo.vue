@@ -69,7 +69,7 @@
      <q-dialog v-model="promptquestiontype" persistent>
      <q-card > 
         
-        <q-card-section class="row items-center" style="width: 300px">
+        <q-card-section class="row items-center">
             
              <q-input style="width: 300px"
         ref="numero"
@@ -141,7 +141,7 @@
         <q-card-actions align="center">
           
           <q-btn flat label="Save" color="primary" @click = "AddQuestionToF()" />
-           <q-btn flat label="Finish" color="primary" v-close-popup />
+           <q-btn flat label="Finish" color="primary" @click="CargarDatos()" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog> 
@@ -242,7 +242,24 @@ export default {
       modemultiselected: false,
       
       
-      mostrarexamen: api.get('/examenModulo/getbyIdModulo/'+this.$route.params.idmodulo,{
+      mostrarexamen: {},
+
+    }
+  },
+   mounted(){      
+
+     // invocar los métodos
+    this.CargarDatos();
+     
+    },
+   methods:{
+  async  AddQuestion(){
+        this.promptquestiontype = true;       
+ 
+
+    },
+    async CargarDatos(){
+   await api.get('/examenModulo/getbyIdModulo/'+this.$route.params.idmodulo,{
   headers: {
     'Authorization': `Bearer ${authenticate.getUserLogged()}`
   }
@@ -250,15 +267,7 @@ export default {
       .catch(error =>  this.$q.notify({
         type: 'negative',
         message: error.response.data.message
-      })),
-
-    }
-  },
-   methods:{
-  async  AddQuestion(){
-        this.promptquestiontype = true;       
- 
-
+      }))
     },
    async EscogerTipo(){  
      
@@ -351,6 +360,7 @@ export default {
         this.answervof = null;
          this.modemultiselected = false; 
           this.savedpreguntaMulti = null;
+         
     },
      AddQuestionSelected(){
     
@@ -364,6 +374,13 @@ export default {
         message: error.response.data.message
       })),
      this.promptquestionSelected = true;
+      this.valorpregunta = "";
+        this.preguntatof =  "";
+        this.answervof = null;
+         this.modemultiselected = false; 
+          this.savedpreguntaMulti = null;
+            
+           
    },
    async AddAllQuestionSelected(){
       await api.post('/pregunta/'+ this.savedpreguntaChecked.id,{pregunta: this.preguntaselected} ,{
@@ -376,6 +393,7 @@ export default {
         message: error.response.data.message
       }));
       this.preguntaselected = null;
+     
    },
   async EditQuestionSelected(){
 
@@ -388,6 +406,8 @@ export default {
         type: 'negative',
         message: error.response.data.message
       })); 
+      this.CargarDatos();
+     
    }
    
    }
