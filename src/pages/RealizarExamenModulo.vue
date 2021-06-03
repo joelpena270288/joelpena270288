@@ -160,7 +160,7 @@
     
   </div>
    <div class="row justify-center">
- <q-btn color="primary" label="End Questionary" @click="Prueba()"/>
+ <q-btn color="primary" label="End Questionary" @click="EnviarCuestionario()"/>
  </div>
  </q-page-container>   
 </template>
@@ -282,14 +282,14 @@ export default {
   
  
   },
-  Prueba(){
+  EnviarCuestionario(){
+    let enviarexamen = {id: this.examen.id, 
+    preguntasToF: [{id: "",respuestas: respuestasVoF[]}], 
+    preguntasMultiselected: [{id: "", respuestas:  respuestaMultiselected[]}],
+    preguntasChecked: [{id: "", respuesta: "" }] };
+    let respuestasVoF = {id: "", respuesta: ""};
+    let respuestaMultiselected = {id: "", respuesta: ""};
  console.log(this.examen)
-  },
-  AnadirPreguntaChecked(){
-
-  },
-  AnadirPreguntaMulti(){
-
   }
  
    

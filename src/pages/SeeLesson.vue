@@ -75,14 +75,21 @@
                  </q-item-section>
                </q-item>
                  </div>
+
+                   <div v-if="cursoprogreso.moduloActual.ultimaclase.examenModulo"> 
                 <q-item>
+                
                    <q-item-section side top>
-                       <q-btn size="12px" flat dense round icon="check_circle" color="purple" @click="RealizarExamen(cursoprogreso.moduloActual.modulo)"/>
+                       <q-btn size="12px" flat dense round icon="check_circle" color="blue" @click="RealizarExamen(cursoprogreso.moduloActual.modulo)"/>
                       </q-item-section>
                         <q-item-section>
                <q-item-label >Module Examen</q-item-label>
                  </q-item-section>
                </q-item>
+                 </div>
+                
+
+               
               
               </div>
 
@@ -192,12 +199,6 @@
                   </div>          
               </q-item-section>
                 </q-item>
-                
-              
-
-                            
-               
-              
                </div>
                <q-separator  spaced inset/> 
                 </div>
@@ -259,12 +260,23 @@ export default {
         optionspreguntas: [],
         grouppreguntas: [],
         cantidadPreguntasHtml: 0,
-         evaluacionclase: 0,
-    
-        
-       
+         evaluacionclase: 0,      
      claseseleccionada: null, 
-      cursoprogreso: api.get('/cursosprogreso/'+this.$route.params.idcurso,{
+      cursoprogreso: null, 
+       
+     
+      
+    }
+  },
+   mounted(){      
+
+     // invocar los métodos
+    this.CargarDatos();
+     
+    },
+   methods:{
+    async CargarDatos(){
+   await api.get('/cursosprogreso/'+this.$route.params.idcurso,{
   headers: {
     'Authorization': `Bearer ${authenticate.getUserLogged()}`
   }
@@ -272,13 +284,18 @@ export default {
       .catch(error =>  this.$q.notify({
         type: 'negative',
         message: error.response.data.message
-      })),
-       
-     
-      
-    }
-  },
-   methods:{
+      }));
+      if(this.cursoprogreso.moduloActual.ultimaclase.clase){
+     this.claseseleccionada = this.cursoprogreso.moduloActual.ultimaclase.clase;
+     for(let i = 0; i < clase.actividades.length; i++ ){
+     for(let j = 0; j< clase.actividades[i].preguntas_html.length; j++){
+       this.cantidadPreguntasHtml ++;
+        this.optionspreguntas.push({label: clase.actividades[i].preguntas_html[j].pregunta, value: clase.actividades[i].preguntas_html[j].id  })
+     }
+    
+   }
+      }
+     },
      
    PrepararClase(clase){
       this.optionspreguntas= [];
@@ -349,6 +366,15 @@ export default {
         message: "Your score is "+ this.evaluacionclase + "%"
       })
       }
+      await api.get('/cursosprogreso/'+this.$route.params.idcurso,{
+  headers: {
+    'Authorization': `Bearer ${authenticate.getUserLogged()}`
+  }
+}).then(response => (this.cursoprogreso = response.data))
+      .catch(error =>  this.$q.notify({
+        type: 'negative',
+        message: error.response.data.message
+      }));
    }
    },
       computed: {
