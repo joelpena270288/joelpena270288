@@ -42,7 +42,7 @@
     <q-option-group 
       :options="pregunta.preguntachecked.optionschecked"
       type="radio"
-      v-model="pregunta.preguntachecked.respuesta"
+      v-model="pregunta.preguntachecked.pregunta_correcta"
     />
   </div>
   </q-item-section>
@@ -105,12 +105,7 @@
            </q-item-label>           
               </q-item-section>
               </q-item>
-           
-         
-             
-             
-   
-                <div v-for="tof in pregunta.preguntaVoF.preguntasValue" v-bind:key="tof.id" > 
+               <div v-for="tof in pregunta.preguntaVoF.preguntasValue" v-bind:key="tof.id" > 
            <q-item>
               
 
@@ -150,7 +145,7 @@
     </q-carousel>
 
     <div class="row justify-center">
-      <q-btn-toggle @click="Mostrar(slide)"
+      <q-btn-toggle @click="Mostrar()"
         glossy
         v-model="slide"
         :options="optionsValues"
@@ -226,6 +221,9 @@ export default {
          if( this.examen.preguntasModulo[i].preguntamultiselected){
            this.examen.preguntasModulo[i].preguntamultiselected.respuesta_multiselected = [];
          }
+         if( this.examen.preguntasModulo[i].preguntachecked){
+           this.examen.preguntasModulo[i].preguntachecked.pregunta_correcta = {};
+         }
          this.optionsValues.push({ label: i+1, value: this.examen.preguntasModulo[i].id } );   
      }
      this.slide = this.examen.preguntasModulo[0].id;
@@ -245,7 +243,7 @@ export default {
     //  { label: 1, value: 'style' },
    // this.
   },
-  Mostrar(slide){ 
+  Mostrar(){ 
     
     
     if(this.posicion > 0){
@@ -254,7 +252,7 @@ export default {
     
      this.optionschecked = [];    
     for(let i = 0; i < this.examen.preguntasModulo.length; i++ ){
-      if(this.examen.preguntasModulo[i].id===slide){
+      if(this.examen.preguntasModulo[i].id===this.slide){
       if(this.examen.preguntasModulo[i].preguntachecked){
         this.examen.preguntasModulo[i].preguntachecked.optionschecked = [];
         for(let j = 0; j< this.examen.preguntasModulo[i].preguntachecked.preguntas.length; j++ ){
@@ -283,13 +281,51 @@ export default {
  
   },
   EnviarCuestionario(){
+    this.Mostrar();
+
+      let allrespuestasVoF = [];
+      let allrespuestaMultiselected = [];
+    let respuestaMultiselected = {};
+    let allpreguntaChecked = [];
+    let preguntaChecked = {};
     let enviarexamen = {id: this.examen.id, 
-    preguntasToF: [{id: "",respuestas: respuestasVoF[]}], 
-    preguntasMultiselected: [{id: "", respuestas:  respuestaMultiselected[]}],
-    preguntasChecked: [{id: "", respuesta: "" }] };
-    let respuestasVoF = {id: "", respuesta: ""};
-    let respuestaMultiselected = {id: "", respuesta: ""};
- console.log(this.examen)
+    allrespuestasVoF, 
+    allrespuestaMultiselected,
+    allpreguntaChecked };
+   for(let i = 0; i< this.examen.preguntasModulo.length; i++){
+     if(this.examen.preguntasModulo[i].preguntaVoF){
+       let respuestasVoF=[];
+       for(let j = 0; j < this.examen.preguntasModulo[i].preguntaVoF.preguntasValue.length; j++){
+         if( this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].respuesta_ToF){
+            respuestasVoF.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].respuesta_ToF});
+
+         }
+         else{
+            respuestasVoF.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: "null"});
+         }
+       }
+
+         allrespuestasVoF.push({id: this.examen.preguntasModulo[i].preguntaVoF.id, respuestasVoF});
+     }
+   
+     if(this.examen.preguntasModulo[i].preguntamultiselected){
+      respuestaMultiselected =  {id: this.examen.preguntasModulo[i].preguntamultiselected.id, respuesta: this.examen.preguntasModulo[i].preguntamultiselected.respuesta_multiselected  };
+      allrespuestaMultiselected.push(respuestaMultiselected);
+    }
+    if(this.examen.preguntasModulo[i].preguntachecked){
+      
+      if(this.examen.preguntasModulo[i].preguntachecked.pregunta_correcta){
+        preguntaChecked = {id: this.examen.preguntasModulo[i].preguntachecked.id, respuesta: this.examen.preguntasModulo[i].preguntachecked.pregunta_correcta};
+       allpreguntaChecked.push(preguntaChecked);
+      }else{
+         preguntaChecked = {id: this.examen.preguntasModulo[i].preguntachecked.id, respuesta: "null"};
+         allpreguntaChecked.push(preguntaChecked);
+      }
+
+    }
+ 
+   }
+ console.log(enviarexamen);
   }
  
    
