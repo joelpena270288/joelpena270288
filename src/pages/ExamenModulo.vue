@@ -242,6 +242,7 @@ export default {
       modemultiselected: false,
       
       
+      
       mostrarexamen: {},
 
     }
@@ -254,7 +255,12 @@ export default {
     },
    methods:{
   async  AddQuestion(){
-        this.promptquestiontype = true;       
+        this.promptquestiontype = true;   
+          this.numero = "";
+          this.valorpregunta = "";
+          this.modeltypequestion = "";
+        
+
  
 
     },
@@ -360,6 +366,8 @@ export default {
         this.answervof = null;
          this.modemultiselected = false; 
           this.savedpreguntaMulti = null;
+          this.SelectedOptions = "";
+           this.numero = "";
          
     },
      AddQuestionSelected(){
@@ -379,6 +387,8 @@ export default {
         this.answervof = null;
          this.modemultiselected = false; 
           this.savedpreguntaMulti = null;
+          this.SelectedOptions = "";
+           this.numero = "";
             
            
    },
@@ -393,6 +403,8 @@ export default {
         message: error.response.data.message
       }));
       this.preguntaselected = null;
+       this.SelectedOptions = "";
+        this.numero = "";
      
    },
   async EditQuestionSelected(){

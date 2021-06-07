@@ -187,6 +187,7 @@ export default {
       optionsValues: [],
       respuesta: {},
       posicion: -1,
+      result: 0,
    
       
     }
@@ -280,7 +281,7 @@ export default {
   
  
   },
-  EnviarCuestionario(){
+ async EnviarCuestionario(){
     this.Mostrar();
 
       let allrespuestasVoF = [];
@@ -294,18 +295,18 @@ export default {
     allpreguntaChecked };
    for(let i = 0; i< this.examen.preguntasModulo.length; i++){
      if(this.examen.preguntasModulo[i].preguntaVoF){
-       let respuestasVoF=[];
+       let respuesta=[];
        for(let j = 0; j < this.examen.preguntasModulo[i].preguntaVoF.preguntasValue.length; j++){
          if( this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].respuesta_ToF){
-            respuestasVoF.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].respuesta_ToF});
+            respuesta.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].respuesta_ToF});
 
          }
          else{
-            respuestasVoF.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: "null"});
+            respuesta.push( {id: this.examen.preguntasModulo[i].preguntaVoF.preguntasValue[j].id, respuesta: "null"});
          }
        }
 
-         allrespuestasVoF.push({id: this.examen.preguntasModulo[i].preguntaVoF.id, respuestasVoF});
+         allrespuestasVoF.push({id: this.examen.preguntasModulo[i].preguntaVoF.id, respuesta});
      }
    
      if(this.examen.preguntasModulo[i].preguntamultiselected){
@@ -325,7 +326,16 @@ export default {
     }
  
    }
- console.log(enviarexamen);
+     await  api.post('/examenModulo',enviarexamen,{
+  headers: {
+    'Authorization': `Bearer ${authenticate.getUserLogged()}`
+  }
+}).then(response => (this.result = response.data))
+      .catch(error =>  this.$q.notify({
+        type: 'negative',
+        message: error.response.data.message
+      }));
+ 
   }
  
    
