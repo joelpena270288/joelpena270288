@@ -6,12 +6,10 @@
          
 
           <q-item-section>
-            <q-item-label>Question</q-item-label>
+            <q-item-label>Questions</q-item-label>
            
           </q-item-section>
-           <q-item-section side top>
-           <q-btn  size="12px" flat dense round icon="add" @click="AddQuestion()"/>        
-            </q-item-section>
+          
         </q-item>
 
         <q-separator />
@@ -19,55 +17,91 @@
         <q-responsive :ratio="1">
           <!-- notice "border-radius-inherit" below; it's important when in a QCard -->
           <q-card-section class="border-radius-inherit  bg-grey-1">
-              <q-item-section>
-              <q-item-label>        
-            
-            <div v-for="pregunta in mostrarexamen.preguntasModulo" v-bind:key="pregunta.id">
-              Pregunta: # {{pregunta.numeropregunta}}
-             
-              
-             
-              <div v-if="pregunta.preguntachecked">
-                <span> Select correct answer</span>
-               <div v-for="preguntas in pregunta.preguntachecked.preguntas" v-bind:key="preguntas.id">
-                {{preguntas.pregunta}}
-                
-                 </div>
-                  <div>Respuesta:</div>
-              {{pregunta.preguntachecked.pregunta_correcta.pregunta}}
-                  <q-separator />
-             </div>
-             <div v-if="pregunta.preguntaVoF">
-               Marque V o F segun corresponda
-               <div v-for="preguntas in pregunta.preguntaVoF.preguntasValue" v-bind:key="preguntas.id">
+            <q-item>
+                <q-item-section>
+                   <q-item-label class="text-h4">   
+                Questions Multiselected:
+                 </q-item-label>                  
+                  <div v-for="pregunta in mostrarexamen.preguntasModulo" v-bind:key="pregunta.id">
+                <div v-if="pregunta.preguntamultiselected">
+                   <q-item-label class="text-h6">
+                 Question: # {{pregunta.numeropregunta}}
+                  </q-item-label>
+                <div v-for="preguntas in pregunta.preguntamultiselected.preguntasvaluesVoF" v-bind:key="preguntas.id">
                 {{preguntas.pregunta}}
                 <div>
                 Answer: {{preguntas.respuesta}}
                 </div>
-                 </div>
-                 <q-separator />
-               </div>
-                 <div v-if="pregunta.preguntamultiselected">
-               Selecciona las respuestas Correctas
-               <div v-for="preguntas in pregunta.preguntamultiselected.preguntasvaluesVoF" v-bind:key="preguntas.id">
-                {{preguntas.pregunta}}
-                <div>
-                Answer: {{preguntas.respuesta}}
-                </div>
-                 </div>
-                 <q-separator />
-               </div>
+                 </div>             
 
+                  </div>
+                    </div>
+                  </q-item-section>
+                   <q-item-section side top>
+           <q-btn  size="12px" flat dense round icon="add" @click="AddQuestion()"/>        
+            </q-item-section>
+              
+              </q-item>
+               <q-separator />
+
+               <q-item>
+                <q-item-section>
+                   <q-item-label class="text-h4">   
+                Questions Checked:
+                 </q-item-label>                  
+                  <div v-for="pregunta in mostrarexamen.preguntasModulo" v-bind:key="pregunta.id">
+                <div v-if="pregunta.preguntachecked">
+                   <q-item-label class="text-h6">
+                 Question: # {{pregunta.numeropregunta}}
+                  </q-item-label>
+                <div v-for="preguntas in pregunta.preguntachecked.preguntas" v-bind:key="preguntas.id">
+                {{preguntas.pregunta}}
                
-           </div>
-            </q-item-label>
-           </q-item-section>
+                 </div>             
+                <q-item-label> 
+                Answer: {{preguntas.respuesta}}
+                </q-item-label> 
+                  </div>
+                    </div>
+                  </q-item-section>
+                   <q-item-section side top>
+           <q-btn  size="12px" flat dense round icon="add" @click="AddQuestion()"/>        
+            </q-item-section>
+              
+              </q-item>
+               <q-separator />
+
+               <q-item>
+                <q-item-section>
+                   <q-item-label class="text-h4">   
+                Questions True or False:
+                 </q-item-label>                  
+                  <div v-for="pregunta in mostrarexamen.preguntasModulo" v-bind:key="pregunta.id">
+                <div v-if="pregunta.preguntaVoF">
+                   <q-item-label class="text-h6">
+                 Question: # {{pregunta.numeropregunta}}
+                  </q-item-label>
+                <div v-for="preguntas in pregunta.preguntaVoF.preguntasValue" v-bind:key="preguntas.id">
+                {{preguntas.pregunta}}
+                Answer: {{preguntas.respuesta}}
+                 </div>             
+               
+                  </div>
+                    </div>
+                  </q-item-section>
+                   <q-item-section side top>
+           <q-btn  size="12px" flat dense round icon="add" @click="AddQuestion()"/>        
+            </q-item-section>
+              
+              </q-item>
+            
+            
              
           </q-card-section>
         </q-responsive>
       </q-card>
      <q-dialog v-model="promptquestiontype" persistent>
-     <q-card > 
+     <q-card style="width: 300px"> 
         
         <q-card-section class="row items-center">
             
@@ -98,14 +132,7 @@
       />
       <q-separator />
           
-        <q-select
-        filled
-        v-model="modeltypequestion"
-        label="Type of Question"
-        :options="stringOptions"
-        style="width: 300px"
-        behavior="menu"
-      />      
+      
         </q-card-section>
 
         <q-card-actions align="center">
@@ -215,7 +242,7 @@ export default {
         valorpregunta:"",
         preguntatof: "",
         //Pregunta selected
-        preguntaselected: null,
+        preguntaselected: "",
         promptquestionSelected: false,
         answervof: null,
         ToFOptions:["True", "False"],
@@ -263,6 +290,19 @@ export default {
 
  
 
+    },
+    async AddMultiselected(){
+        await api.post('/preguntamultiselected/', {idPreguntaModulo: this.savedpregunta.id}, {
+     headers: {
+    'Authorization': `Bearer ${authenticate.getUserLogged()}`
+  }
+}).then(response => (this.savedpreguntaMulti = response.data))
+      .catch(error =>  this.$q.notify({
+        type: 'negative',
+        message: error.response.data.message
+      }));
+      this.modemultiselected = true; 
+      this.promptToF = true;
     },
     async CargarDatos(){
    await api.get('/examenModulo/getbyIdModulo/'+this.$route.params.idmodulo,{
@@ -368,6 +408,7 @@ export default {
           this.savedpreguntaMulti = null;
           this.SelectedOptions = "";
            this.numero = "";
+           this.preguntaselected = "";
          
     },
      AddQuestionSelected(){
@@ -389,6 +430,7 @@ export default {
           this.savedpreguntaMulti = null;
           this.SelectedOptions = "";
            this.numero = "";
+              this.preguntaselected = "";
             
            
    },
@@ -402,10 +444,17 @@ export default {
         type: 'negative',
         message: error.response.data.message
       }));
-      this.preguntaselected = null;
+     
        this.SelectedOptions = "";
         this.numero = "";
-     
+     this.valorpregunta = "";
+        this.preguntatof =  "";
+        this.answervof = null;
+         this.modemultiselected = false; 
+          this.savedpreguntaMulti = null;
+          this.SelectedOptions = "";
+          this.numero = "";
+          this.preguntaselected = "";
    },
   async EditQuestionSelected(){
 
@@ -419,6 +468,14 @@ export default {
         message: error.response.data.message
       })); 
       this.CargarDatos();
+      this.valorpregunta = "";
+        this.preguntatof =  "";
+        this.answervof = null;
+         this.modemultiselected = false; 
+        this.savedpreguntaMulti = null;
+        this.SelectedOptions = "";
+          this.numero = "";
+          this.preguntaselected = "";
      
    }
    

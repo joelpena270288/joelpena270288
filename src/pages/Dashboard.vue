@@ -206,15 +206,7 @@ export default {
       idcursoseleccionado: 0,
       iniciofecha: new Date().toLocaleString(),
       registrationdate: { from: '2020/07/08', to: '2020/07/17' },
-      cursosprogresos: api.get('/cursosprogreso/all',{
-  headers: {
-    'Authorization': `Bearer ${authenticate.getUserLogged()}`
-  }
-}).then(response=>(this.cursosprogresos = response.data))
-.catch(error =>  this.$q.notify({
-        type: 'negative',
-        message: error.response.data.message
-      })),
+      cursosprogresos: null,
 
   cursosaprobados: api.get('/curso/byuser',{
   headers: {
@@ -225,7 +217,22 @@ export default {
         type: 'negative',
         message: error.response.data.message
       })),
-  cursoscreados: api.get('/curso/byuser',{
+  cursoscreados: null, 
+
+    }
+  },
+  mounted(){      
+   api.get('/cursosprogreso/all',{
+  headers: {
+    'Authorization': `Bearer ${authenticate.getUserLogged()}`
+  }
+}).then(response=>(this.cursosprogresos = response.data))
+.catch(error =>  this.$q.notify({
+        type: 'negative',
+        message: error.response.data.message
+      }));
+
+      api.get('/curso/byuser',{
   headers: {
     'Authorization': `Bearer ${authenticate.getUserLogged()}`
   }
@@ -233,10 +240,9 @@ export default {
 .catch(error =>  this.$q.notify({
         type: 'negative',
         message: error.response.data.message
-      }))
-
-    }
-  },
+      }));
+    
+    },
   methods:{
   async AddCurso(){
      

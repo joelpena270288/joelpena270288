@@ -63,7 +63,7 @@ export default {
     const token = await authenticate.login(this.username, this.password);
   
     if(token){
-     
+     authenticate.deleteUserLogged();
     let session = JWT.read(token.data.token);    
    
     session.claim.roles
